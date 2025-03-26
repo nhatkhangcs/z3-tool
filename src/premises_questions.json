@@ -1,0 +1,28 @@
+{
+    "premises": [
+        "ForAll(x, P(x))",
+        "(¬T(x) → ¬P(x))",
+        "ForAll(x, Q(x))",
+        "((¬T(x) → ¬P(x)) → ForAll(x, Q(x)))",
+        "((¬T(x) → ¬P(x)) → ((¬T(x) → ¬P(x)) → ForAll(x, Q(x))))",
+        "Exists(x, P(x))",
+        "(¬R(x) → ¬P(x))"
+    ],
+    "questions": [
+        "Based on the above premises, which statement can be inferred?\nA. ((¬T(x) → ¬P(x)) → ((¬T(x) → ¬P(x)) → ForAll(x, Q(x))))\nB. (((¬T(x) → ¬P(x)) → ((¬T(x) → ¬P(x)) → ForAll(x, Q(x)))) ∧ ¬((¬T(x) → ¬P(x)) → ((¬T(x) → ¬P(x)) → ForAll(x, Q(x)))))\nC. ¬((¬T(x) → ¬P(x)) → ((¬T(x) → ¬P(x)) → ForAll(x, Q(x))))\nD. (((¬T(x) → ¬P(x)) → ((¬T(x) → ¬P(x)) → ForAll(x, Q(x)))) → ((¬T(x) → ¬P(x)) → ((¬T(x) → ¬P(x)) → ForAll(x, Q(x)))))",
+        "Based on the above premises, is the statement true?\nStatement: (¬T(x) → ¬P(x))"
+    ],
+    "answers": [
+        "A",
+        "Yes"
+    ],
+    "idx": [
+        [
+            1,
+            4
+        ],
+        [
+            1
+        ]
+    ]
+}

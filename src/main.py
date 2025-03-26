@@ -1,6 +1,6 @@
 from fol_reasoning.reasoning import FOLReasoning
 from fol_reasoning.questions import generate_chained_multiple_choice_question, generate_chained_yes_no_question
-from fol_reasoning.utils import expr_to_fol_string
+from fol_reasoning.utils import expr_to_fol_string, save_to_json
 
 if __name__ == "__main__":
     # Initialize the FOLReasoning class
@@ -27,10 +27,18 @@ if __name__ == "__main__":
 
     # Generate a chained yes/no/uncertain question
     print("\n=== Yes/No/Uncertain Question ===")
-    yn_question, yn_answer, yn_used_indices = generate_chained_yes_no_question(premises, option="last")
+    yn_question, yn_answer, yn_used_indices = generate_chained_yes_no_question(premises, option="random")
     print(yn_question)
     print(f"Correct Answer: {yn_answer}")
     print("\nPremises Used for Inference:")
     for idx in yn_used_indices:
         rule, expr = all_premises[idx]
         print(f"Premise {idx}")
+
+    # save the premises, questions, answers and indices to a JSON file
+    filepath = "premises_questions.json"
+    premises_list = [expr_to_fol_string(expr) for _, expr in all_premises]
+    questions_list = [mc_question, yn_question]
+    answers_list = [mc_answer, yn_answer]
+    indices_list = [mc_used_indices, yn_used_indices]
+    save_to_json(filepath, premises_list, questions_list, answers_list, indices_list)

@@ -58,72 +58,86 @@ class FOLReasoning:
         original_premises = []
         derived_premises = []
         unrelated_premises = []
+        unique_premises = set()  # Track unique premises
 
         used_variables = [self.P, self.Q, self.R, self.S, self.T, self.U]  # Use functions, not BoolRef
 
-        # Generate the first premise
-        rule_name, rule_func = random.choice(list(self.rules.items()))
-        vars_needed = rule_func.__code__.co_argcount
-        chosen_vars = random.sample([f(self.x) for f in used_variables], vars_needed)
-        first_premise = rule_func(*chosen_vars)
-        original_premises.append((rule_name, first_premise))
+        # Generate original premises
+        for _ in range(steps):
+            while True:
+                rule_name, rule_func = random.choice(list(self.rules.items()))
+                vars_needed = rule_func.__code__.co_argcount
+                chosen_vars = random.sample([f(self.x) for f in used_variables], vars_needed)
+                premise = rule_func(*chosen_vars)
 
-        # Generate chained premises
-        current_expr = first_premise
-        for _ in range(chain_count - 1):
-            rule_name, rule_func = random.choice(list(self.rules.items()))
-            vars_needed = rule_func.__code__.co_argcount
-
-            # Use the current expression as part of the next premise
-            if vars_needed > 1:
-                chosen_vars = [current_expr] + random.sample([f(self.x) for f in used_variables], vars_needed - 1)
-            else:
-                chosen_vars = [current_expr]
-
-            new_premise = rule_func(*chosen_vars)
-            original_premises.append((rule_name, new_premise))
-            current_expr = new_premise
-
-        # Generate unrelated premises for confusion
-        for _ in range(steps - chain_count):
-            rule_name, rule_func = random.choice(list(self.rules.items()))
-            vars_needed = rule_func.__code__.co_argcount
-            chosen_vars = random.sample([f(self.x) for f in used_variables], vars_needed)
-            unrelated_premise = rule_func(*chosen_vars)
-            unrelated_premises.append((rule_name, unrelated_premise))
+                # Avoid tautologies and duplicates
+                if not self.is_tautology(premise) and str(premise) not in unique_premises:
+                    original_premises.append((rule_name, premise))
+                    unique_premises.add(str(premise))
+                    break
 
         # Generate derived premises using Z3
         for _ in range(derive_count):
-            # Randomly select two premises to chain
-            premise1 = random.choice(original_premises + derived_premises)
-            premise2 = random.choice(original_premises + derived_premises)
+            while True:
+                # Randomly select two premises to chain
+                premise1 = random.choice(original_premises + derived_premises)
+                premise2 = random.choice(original_premises + derived_premises)
 
-            # Use Z3 to derive a new premise
-            solver = Solver()
-            solver.add(premise1[1])  # Add the first premise
-            solver.add(premise2[1])  # Add the second premise
+                # Use Z3 to derive a new premise
+                solver = Solver()
+                solver.add(premise1[1])  # Add the first premise
+                solver.add(premise2[1])  # Add the second premise
 
-            # Attempt to derive a new logical conclusion
-            derived_expr = Implies(premise1[1], premise2[1])  # Example: Derive an implication
-            solver.push()
-            solver.add(Not(derived_expr))  # Check if the derived expression is valid
-            if solver.check() == unsat:
-                # If unsatisfiable, the derived expression is valid
-                derived_rule = f"Derived({premise1[0]} → {premise2[0]})"
-                derived_premises.append((derived_rule, derived_expr))
-            solver.pop()
+                # Attempt to derive a new logical conclusion
+                derived_expr = Implies(premise1[1], premise2[1])  # Example: Derive an implication
+                solver.push()
+                solver.add(Not(derived_expr))  # Check if the derived expression is valid
+                if solver.check() == unsat and str(derived_expr) not in unique_premises:
+                    # If unsatisfiable, the derived expression is valid
+                    derived_rule = f"Derived({premise1[0]} → {premise2[0]})"
+                    derived_premises.append((derived_rule, derived_expr))
+                    unique_premises.add(str(derived_expr))
+                    solver.pop()
+                    break
+                solver.pop()
+
+        # Generate unrelated premises for confusion
+        for _ in range(steps - chain_count):
+            while True:
+                rule_name, rule_func = random.choice(list(self.rules.items()))
+                vars_needed = rule_func.__code__.co_argcount
+                chosen_vars = random.sample([f(self.x) for f in used_variables], vars_needed)
+                unrelated_premise = rule_func(*chosen_vars)
+
+                # Avoid tautologies and duplicates
+                if not self.is_tautology(unrelated_premise) and str(unrelated_premise) not in unique_premises:
+                    unrelated_premises.append((rule_name, unrelated_premise))
+                    unique_premises.add(str(unrelated_premise))
+                    break
 
         # Shuffle all premises to mix them
         all_premises = original_premises + derived_premises + unrelated_premises
         random.shuffle(all_premises)
-
-        print("Number of premises generated: ", len(all_premises))
 
         return {
             "original": original_premises,
             "derived": derived_premises,
             "unrelated": unrelated_premises,
         }
+
+    def is_tautology(self, expr):
+        """
+        Check if a given expression is a tautology.
+
+        Args:
+            expr (z3.ExprRef): The expression to check.
+
+        Returns:
+            bool: True if the expression is a tautology, False otherwise.
+        """
+        solver = Solver()
+        solver.add(Not(expr))  # Check if the negation of the expression is satisfiable
+        return solver.check() == unsat
 
     def display_premises(self, premises):
         """
