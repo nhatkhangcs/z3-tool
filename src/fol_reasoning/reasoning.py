@@ -92,7 +92,7 @@ class FOLReasoning:
                 derived_expr = Implies(premise1[1], premise2[1])  # Example: Derive an implication
                 solver.push()
                 solver.add(Not(derived_expr))  # Check if the derived expression is valid
-                if solver.check() == unsat and str(derived_expr) not in unique_premises:
+                if solver.check() == unsat and not self.is_tautology(derived_expr) and str(derived_expr) not in unique_premises:
                     # If unsatisfiable, the derived expression is valid
                     derived_rule = f"Derived({premise1[0]} → {premise2[0]})"
                     derived_premises.append((derived_rule, derived_expr))
