@@ -1,20 +1,20 @@
 {
     "premises": [
+        "Exists(x, Q(x))",
+        "ForAll(x, R(x))",
+        "ForAll(x, T(x))",
+        "(ForAll(x, R(x)) → ForAll(x, T(x)))",
+        "((ForAll(x, R(x)) → ForAll(x, T(x))) → Exists(x, Q(x)))",
         "Exists(x, U(x))",
-        "ForAll(x, S(x))",
-        "ForAll(x, Q(x))",
-        "(ForAll(x, S(x)) → ForAll(x, Q(x)))",
-        "((ForAll(x, S(x)) → ForAll(x, Q(x))) → ForAll(x, S(x)))",
-        "(¬P(x) → ¬R(x))",
-        "Exists(x, R(x))"
+        "(P(x) → Q(x))"
     ],
     "questions": [
-        "Based on the above premises, which statement can be inferred?\nA. (((ForAll(x, S(x)) → ForAll(x, Q(x))) → ForAll(x, S(x))) ∧ ¬((ForAll(x, S(x)) → ForAll(x, Q(x))) → ForAll(x, S(x))))\nB. ¬((ForAll(x, S(x)) → ForAll(x, Q(x))) → ForAll(x, S(x)))\nC. (((ForAll(x, S(x)) → ForAll(x, Q(x))) → ForAll(x, S(x))) → ((ForAll(x, S(x)) → ForAll(x, Q(x))) → ForAll(x, S(x))))\nD. ((ForAll(x, S(x)) → ForAll(x, Q(x))) → ForAll(x, S(x)))",
-        "Based on the above premises, is the statement true?\nStatement: Exists(x, U(x))"
+        "Based on the above premises, which statement can be inferred?\nA. (((ForAll(x, R(x)) → ForAll(x, T(x))) → Exists(x, Q(x))) ∧ ¬((ForAll(x, R(x)) → ForAll(x, T(x))) → Exists(x, Q(x))))\nB. (((ForAll(x, R(x)) → ForAll(x, T(x))) → Exists(x, Q(x))) → ((ForAll(x, R(x)) → ForAll(x, T(x))) → Exists(x, Q(x))))\nC. ¬((ForAll(x, R(x)) → ForAll(x, T(x))) → Exists(x, Q(x)))\nD. ((ForAll(x, R(x)) → ForAll(x, T(x))) → Exists(x, Q(x)))",
+        "Based on the above premises, is the statement true?\nStatement: ¬((ForAll(x, R(x)) → ForAll(x, T(x))) → Exists(x, Q(x)))"
     ],
     "answers": [
         "D",
-        "Yes"
+        "Uncertain"
     ],
     "idx": [
         [
@@ -22,8 +22,6 @@
             3,
             4
         ],
-        [
-            0
-        ]
+        []
     ]
 }

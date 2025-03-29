@@ -82,21 +82,28 @@ def generate_chained_yes_no_question(premises, option="last"):
     """
     all_premises = premises["original"] + premises["derived"]
     chosen_step = random.randint(0, len(all_premises) - 1) if option == "random" else len(all_premises) - 1
-    _, answer_expr = all_premises[chosen_step]
+    _, target_expr = all_premises[chosen_step]
 
-    # Trace the indices of premises used to infer the answer
-    used_indices = trace_chained_premises_with_indices(all_premises, answer_expr)
+    # Randomly decide the type of question: "Yes", "No", or "Uncertain"
+    question_type = random.choice(["Yes", "No", "Uncertain"])
 
-    # Determine the answer
-    if used_indices:
-        answer = "Yes"
-    else:
+    if question_type == "Yes":
+        # Trace the indices of premises used to infer the answer
+        used_indices = trace_chained_premises_with_indices(all_premises, target_expr)
+        answer = "Yes" if used_indices else "Uncertain"
+    elif question_type == "No":
+        # Negate the target expression to create a contradiction
+        target_expr = Not(target_expr)
+        used_indices = trace_chained_premises_with_indices(all_premises, target_expr)
+        answer = "No" if used_indices else "Uncertain"
+    else:  # "Uncertain"
+        # Create an expression that cannot be inferred
+        target_expr = random.choice([expr for _, expr in premises["unrelated"]])
+        used_indices = []
         answer = "Uncertain"
 
     # Format the question
     question = f"Based on the above premises, is the statement true?\n"
-    # for idx, (rule, expr) in enumerate(all_premises):
-    #     question += f"Premise {idx}: {rule} -> {expr_to_fol_string(expr)}\n"
-    question += f"Statement: {expr_to_fol_string(answer_expr)}"
+    question += f"Statement: {expr_to_fol_string(target_expr)}"
 
     return question, answer, used_indices
